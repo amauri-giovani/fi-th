@@ -1,0 +1,96 @@
+from django.contrib import admin
+from companies.models import Company
+from .models import (
+    ContractData,
+    BillingPolicy,
+    InvoiceConfig,
+    FinancialContact,
+    FeeBilling,
+    FeeDetails,
+    FeeDispatchContact,
+)
+from .catalogs import (
+    Product,
+    BillingCycle,
+    BillingCalendar,
+    AdjustmentIndex,
+    PaymentMethod,
+)
+
+
+class CompanyRelatedAdmin(admin.ModelAdmin):
+    list_filter = ("company",)
+    readonly_fields = ("created_at", "updated_at")
+    ordering = ("-updated_at",)
+
+
+@admin.register(ContractData)
+class ContractDataAdmin(CompanyRelatedAdmin):
+    list_display = ("company", "signature_date", "expiration_date", "adjustment_index")
+    search_fields = ("company__name", "adjustment_index__name")
+
+
+@admin.register(BillingPolicy)
+class BillingPolicyAdmin(CompanyRelatedAdmin):
+    list_display = ("company", "get_products", "cycle", "term_days", "calendar")
+    filter_horizontal = ("products_to_bill",)
+
+    def get_products(self, obj):
+        return ", ".join(p.product_type for p in obj.products_to_bill.all())
+    get_products.short_description = "Produtos a Faturar"
+
+
+@admin.register(InvoiceConfig)
+class InvoiceConfigAdmin(CompanyRelatedAdmin):
+    list_display = ("company", "creation_type", "has_cutoff")
+    filter_horizontal = ("payment_methods",)
+
+
+@admin.register(FinancialContact)
+class FinancialContactAdmin(CompanyRelatedAdmin):
+    list_display = ("company", "name", "role", "email", "is_billing_contact")
+    search_fields = ("name", "email")
+
+
+@admin.register(FeeBilling)
+class FeeBillingAdmin(CompanyRelatedAdmin):
+    list_display = ("company", "charge_type")
+    filter_horizontal = ("products_to_charge",)
+
+
+@admin.register(FeeDetails)
+class FeeDetailsAdmin(CompanyRelatedAdmin):
+    list_display = ("company", "fee_closing_date", "cycle", "payment_date", "send_report")
+    search_fields = ("validation",)
+
+
+@admin.register(FeeDispatchContact)
+class FeeDispatchContactAdmin(CompanyRelatedAdmin):
+    list_display = ("company", "name", "email", "invoice_to")
+    search_fields = ("name", "email", "invoice_to")
+
+
+# Models as Catalogs
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ("product_type",)
+
+
+@admin.register(BillingCycle)
+class BillingCycleAdmin(admin.ModelAdmin):
+    list_display = ("days",)
+
+
+@admin.register(BillingCalendar)
+class BillingCalendarAdmin(admin.ModelAdmin):
+    list_display = ("cycle_date",)
+
+
+@admin.register(AdjustmentIndex)
+class AdjustmentIndexAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+
+
+@admin.register(PaymentMethod)
+class PaymentMethodAdmin(admin.ModelAdmin):
+    list_display = ("payment_type",)
