@@ -32,7 +32,8 @@ class BillingPolicy(CompanyRelatedModel):
         verbose_name_plural = "Políticas de Faturamento"
 
     def __str__(self):
-        return f'{self.company} - Cycle: {self.cycle.days} days'
+        cycle_str = f"{self.cycle.days} days" if self.cycle else "Sem ciclo"
+        return f"{self.company} - Cycle: {cycle_str}"
 
 
 class InvoiceCreationChoices(models.TextChoices):
@@ -54,32 +55,6 @@ class InvoiceConfig(CompanyRelatedModel):
 
     def __str__(self):
         return f'{self.company} - Creation Type: {self.creation_type}'
-
-
-class FinancialContact(CompanyRelatedModel):
-    name = models.CharField(max_length=100, verbose_name="Nome")
-    role = models.CharField(max_length=100, verbose_name="Cargo")
-    phone = models.CharField(max_length=30, verbose_name="Telefone")
-    email = models.EmailField(verbose_name="E-mail")
-    is_billing_contact = models.BooleanField(default=False, verbose_name="Contato para Cobrança")
-
-    class Meta:
-        verbose_name = "Contato Financeiro"
-        verbose_name_plural = "Contatos Financeiros"
-
-    def __str__(self):
-        return f"{self.name} - {self.role}"
-
-
-class FeeDispatchContact(FinancialContact):
-    invoice_to = models.CharField(max_length=100, verbose_name="Emitir NF para")
-
-    class Meta:
-        verbose_name = "Contato para Envio do FEE"
-        verbose_name_plural = "Contatos para Envio do FEE"
-
-    def __str__(self):
-        return f'{self.company} - Invoice To: {self.invoice_to}'
 
 
 class FeeBilling(CompanyRelatedModel):

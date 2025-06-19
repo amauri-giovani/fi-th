@@ -1,13 +1,10 @@
 from django.contrib import admin
-from companies.models import Company
 from .models import (
     ContractData,
     BillingPolicy,
     InvoiceConfig,
-    FinancialContact,
     FeeBilling,
     FeeDetails,
-    FeeDispatchContact,
 )
 from .catalogs import (
     Product,
@@ -46,12 +43,6 @@ class InvoiceConfigAdmin(CompanyRelatedAdmin):
     filter_horizontal = ("payment_methods",)
 
 
-@admin.register(FinancialContact)
-class FinancialContactAdmin(CompanyRelatedAdmin):
-    list_display = ("company", "name", "role", "email", "is_billing_contact")
-    search_fields = ("name", "email")
-
-
 @admin.register(FeeBilling)
 class FeeBillingAdmin(CompanyRelatedAdmin):
     list_display = ("company", "charge_type")
@@ -62,12 +53,6 @@ class FeeBillingAdmin(CompanyRelatedAdmin):
 class FeeDetailsAdmin(CompanyRelatedAdmin):
     list_display = ("company", "fee_closing_date", "cycle", "payment_date", "send_report")
     search_fields = ("validation",)
-
-
-@admin.register(FeeDispatchContact)
-class FeeDispatchContactAdmin(CompanyRelatedAdmin):
-    list_display = ("company", "name", "email", "invoice_to")
-    search_fields = ("name", "email", "invoice_to")
 
 
 # Models as Catalogs
