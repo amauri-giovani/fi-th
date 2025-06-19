@@ -1,7 +1,8 @@
 from rest_framework.routers import DefaultRouter
 from financial.views import (
-    ContractDataViewSet, BillingPolicyViewSet, InvoiceConfigViewSet, FeeBillingViewSet, FeeDetailsViewSet,
+    ContractDataViewSet, BillingPolicyViewSet, InvoiceConfigViewSet, FeeBillingViewSet, FeeDetailsViewSet
 )
+
 
 router = DefaultRouter()
 router.register(r"contract-data", ContractDataViewSet)

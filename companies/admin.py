@@ -1,5 +1,13 @@
 from django.contrib import admin
-from .models import Company, CompanyContact, FeeDispatchContact, Vip
+from .models import CompanyGroup, Company, CompanyContact, FeeDispatchContact, Vip
+
+
+@admin.register(CompanyGroup)
+class CompanyGroupAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug", "main_company__name")
+    search_fields = ("name", "slug", "main_company__name")
+    ordering = ("name",)
+    readonly_fields = ("slug",)
 
 
 @admin.register(Company)

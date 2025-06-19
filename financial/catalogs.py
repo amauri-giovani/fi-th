@@ -1,8 +1,12 @@
 from django.db import models
+from django.utils.text import slugify
 
 
 class AdjustmentIndex(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Nome do Índice")
+    name = models.CharField(
+        max_length=100, verbose_name="Nome do Índice", unique=True, help_text='Tipo do produto: Aéreo, Hotel, etc'
+    )
+    slug = models.SlugField("Slug", unique=True)
 
     class Meta:
         verbose_name = "Catalogs - Índice de Reajuste"
@@ -11,9 +15,17 @@ class AdjustmentIndex(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):  # new
+        if not self.slug:
+            self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
+
 
 class Product(models.Model):
-    product_type = models.CharField(max_length=100, verbose_name="Produto")
+    product_type = models.CharField(
+        max_length=100, verbose_name="Produto", unique=True, help_text='Tipo do produto: Aéreo, Hotel, etc'
+    )
+    slug = models.SlugField("Slug", unique=True)
 
     class Meta:
         verbose_name = "Catalogs - Produto"
@@ -22,9 +34,14 @@ class Product(models.Model):
     def __str__(self):
         return self.product_type
 
+    def save(self, *args, **kwargs):  # new
+        if not self.slug:
+            self.slug = slugify(self.product_type)
+        return super().save(*args, **kwargs)
+
 
 class BillingCycle(models.Model):
-    days = models.PositiveSmallIntegerField(verbose_name="Quantidade de dias")
+    days = models.PositiveSmallIntegerField(verbose_name="Quantidade de dias", unique=True)
 
     class Meta:
         verbose_name = "Catalogs - Ciclo de Cobrança"
@@ -35,7 +52,7 @@ class BillingCycle(models.Model):
 
 
 class BillingCalendar(models.Model):
-    cycle_date = models.DateField(verbose_name="Ciclo")
+    cycle_date = models.DateField(verbose_name="Ciclo", unique=True)
 
     class Meta:
         verbose_name = "Catalogs - Calendário de Faturamento"
@@ -46,7 +63,8 @@ class BillingCalendar(models.Model):
 
 
 class PaymentMethod(models.Model):
-    payment_type = models.CharField(max_length=100, verbose_name="Forma de Pagamento")
+    payment_type = models.CharField(max_length=100, verbose_name="Forma de Pagamento", unique=True)
+    slug = models.SlugField("Slug", unique=True)
 
     class Meta:
         verbose_name = "Catalogs - Forma de Pagamento"
@@ -54,3 +72,8 @@ class PaymentMethod(models.Model):
 
     def __str__(self):
         return self.payment_type
+
+    def save(self, *args, **kwargs):  # new
+        if not self.slug:
+            self.slug = slugify(self.payment_type)
+        return super().save(*args, **kwargs)

@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.text import slugify
 from shared.models import TimeStampedModel
 
 
@@ -15,10 +16,44 @@ class CompanyRelatedModel(TimeStampedModel):
         abstract = True
 
 
+class CompanyGroup(models.Model):
+    name = models.CharField("Nome do Grupo", max_length=255)
+    slug = models.SlugField("Slug", unique=True)
+    main_company = models.OneToOneField(
+        "Company",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="is_main_company_of",
+        verbose_name="Empresa Principal",
+        help_text="Empresa principal do grupo"
+    )
+
+    class Meta:
+        verbose_name = "Grupo da Empresa"
+        verbose_name_plural = "Grupos das Empresas"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):  # new
+        if not self.slug:
+            self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
+
+
 class Company(models.Model):
-    name = models.CharField('Razão Social', max_length=255, help_text='Nome jurídico oficial')
-    fantasy_name = models.CharField('Nome Fantasia', max_length=255, help_text='Nome utilizado comercialmente')
-    cnpj = models.CharField('CNPJ', max_length=14, help_text='Validação obrigatória')
+    group = models.ForeignKey(
+        "CompanyGroup", on_delete=models.PROTECT, related_name="companies", verbose_name="Grupo",
+        help_text="Grupo ao qual esta empresa pertence"
+    )
+    go_live = models.DateField(verbose_name="Go Live")
+    name = models.CharField('Razão Social', max_length=255, help_text='Nome jurídico oficial', unique=True)
+    fantasy_name = models.CharField(
+        'Nome Fantasia', max_length=255, help_text='Nome utilizado comercialmente', unique=True
+    )
+    cnpj = models.CharField('CNPJ', max_length=14, help_text='Validação obrigatória', unique=True)
     full_address = models.TextField(
         'Endereço Completo', blank=True, null=True, help_text='Utilizado para referência e notas fiscais'
     )
@@ -33,8 +68,8 @@ class Company(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Companhia'
-        verbose_name_plural = 'Companhias'
+        verbose_name = 'Empresa'
+        verbose_name_plural = 'Empresas'
         ordering = ['name']
 
     def __str__(self):
@@ -75,12 +110,12 @@ class Company(models.Model):
 
 
 class CompanyContact(CompanyRelatedModel):
-    name = models.CharField(max_length=100, verbose_name="Nome")
+    name = models.CharField(max_length=100, verbose_name="Nome", unique=True)
     role = models.CharField(max_length=100, verbose_name="Cargo")
     phone = models.CharField(max_length=30, verbose_name="Telefone Fixo", blank=True)
     mobile = models.CharField(max_length=30, verbose_name="Celular", blank=True)
     whatsapp = models.CharField(max_length=30, verbose_name="WhatsApp", blank=True)
-    email = models.EmailField(verbose_name="E-mail")
+    email = models.EmailField(verbose_name="E-mail", unique=True)
     is_travel_manager = models.BooleanField(default=False, verbose_name="Gestor de Viagem")
     is_account_executive = models.BooleanField(default=False, verbose_name="Executivo de Contas")
     is_billing_contact = models.BooleanField(default=False, verbose_name="Contato para Cobrança")

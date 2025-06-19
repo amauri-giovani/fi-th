@@ -1,8 +1,22 @@
 from rest_framework import serializers
-from .models import Company, Vip, CompanyContact, FeeDispatchContact
+from companies.models import CompanyGroup, Company, Vip, CompanyContact, FeeDispatchContact
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    main_company_name = serializers.CharField(
+        source="main_company.name", read_only=True
+    )
+
+    class Meta:
+        model = CompanyGroup
+        fields = ["id", "name", "slug", "main_company", "main_company_name"]
 
 
 class CompanySerializer(serializers.ModelSerializer):
+    group = GroupSerializer(read_only=True)
+    group_id = serializers.PrimaryKeyRelatedField(
+        queryset=CompanyGroup.objects.all(), write_only=True, source="group"
+    )
     travel_managers = serializers.SerializerMethodField()
     account_executives = serializers.SerializerMethodField()
     billing_contacts = serializers.SerializerMethodField()
