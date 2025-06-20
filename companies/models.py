@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.text import slugify
+from companies.catalogs import PointOfSale
 from shared.models import TimeStampedModel
 
 
@@ -56,6 +57,9 @@ class Company(models.Model):
     cnpj = models.CharField('CNPJ', max_length=14, help_text='Validação obrigatória', unique=True)
     full_address = models.TextField(
         'Endereço Completo', blank=True, null=True, help_text='Utilizado para referência e notas fiscais'
+    )
+    point_of_sale = models.ForeignKey(
+        PointOfSale, on_delete=models.PROTECT, related_name="point", verbose_name="Ponto de Venda"
     )
     segment = models.CharField('Segmento', max_length=255, help_text='Ex: Saúde, Educação, Indústria')
     benner_code = models.CharField(

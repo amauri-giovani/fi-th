@@ -1,4 +1,5 @@
 from django.contrib import admin
+from .catalogs import PointOfSale
 from .models import CompanyGroup, Company, CompanyContact, FeeDispatchContact, Vip
 
 
@@ -44,3 +45,8 @@ class VipAdmin(admin.ModelAdmin):
     list_display = ("company_contact", "is_requester", "is_traveler", "is_secretary")
     list_filter = ("company_contact", "is_requester", "is_traveler", "is_secretary")
     search_fields = ("company_contact__name",)
+
+
+@admin.register(PointOfSale)
+class PointOfSaleAdmin(admin.ModelAdmin):
+    list_display = ("name",)
