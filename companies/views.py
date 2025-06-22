@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
+from django.db.models import Prefetch
 from companies.catalogs import PointOfSale
 from companies.models import CompanyGroup, Company, CompanyContact, FeeDispatchContact, Vip
 from companies.serializers.base import GroupSerializer, CompanySerializer
@@ -6,8 +8,21 @@ from companies.serializers.catalogs import PointOfSaleSerializer
 from companies.serializers.contact import CompanyContactSerializer, FeeDispatchContactSerializer, VipSerializer
 
 
-class GroupViewSet(viewsets.ModelViewSet):
-    queryset = CompanyGroup.objects.all()
+class GroupViewSet(ModelViewSet):
+    queryset = CompanyGroup.objects.select_related("main_company").prefetch_related(
+        Prefetch(
+            "companies",
+            queryset=Company.objects.select_related("point_of_sale").prefetch_related(
+                "companycontact__vips",
+                "feedispatchcontact",
+                "contractdata",
+                "billingpolicy",
+                "invoiceconfig",
+                "feebilling",
+                "feedetails",
+            )
+        )
+    )
     serializer_class = GroupSerializer
 
 

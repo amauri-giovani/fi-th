@@ -174,6 +174,7 @@ class Vip(models.Model):
     company_contact = models.ForeignKey(
         "CompanyContact",
         on_delete=models.CASCADE,
+        related_name="vips",
         verbose_name="Contato"
     )
     is_requester = models.BooleanField(default=False, verbose_name="Solicitante")
