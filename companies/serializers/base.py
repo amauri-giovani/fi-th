@@ -10,10 +10,10 @@ from financial.serializers.base import (
 
 
 class CompanySerializer(serializers.ModelSerializer):
-    group_name = serializers.CharField(source="group.name", read_only=True)
-    group_id = serializers.PrimaryKeyRelatedField(
-        queryset=CompanyGroup.objects.all(), write_only=True, source="group"
+    group = serializers.PrimaryKeyRelatedField(
+        queryset=CompanyGroup.objects.all(), write_only=True
     )
+    group_name = serializers.CharField(source="group.name", read_only=True)
     point_of_sale = PointOfSaleSerializer(read_only=True)
     point_of_sale_id = serializers.PrimaryKeyRelatedField(
         queryset=PointOfSale.objects.all(), write_only=True, source="point_of_sale"

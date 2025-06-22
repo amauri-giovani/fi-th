@@ -6,3 +6,4 @@ class PointOfSaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = PointOfSale
         fields = ["id", "name", "slug"]
+        read_only_fields = ["slug"]
