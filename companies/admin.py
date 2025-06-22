@@ -50,3 +50,4 @@ class VipAdmin(admin.ModelAdmin):
 @admin.register(PointOfSale)
 class PointOfSaleAdmin(admin.ModelAdmin):
     list_display = ("name",)
+    readonly_fields = ("slug",)

@@ -1,8 +1,9 @@
 from rest_framework import viewsets
+from companies.catalogs import PointOfSale
 from companies.models import CompanyGroup, Company, CompanyContact, FeeDispatchContact, Vip
-from companies.serializers import (
-    GroupSerializer, CompanySerializer, CompanyContactSerializer, FeeDispatchContactSerializer, VipSerializer
-)
+from companies.serializers.base import GroupSerializer, CompanySerializer
+from companies.serializers.catalogs import PointOfSaleSerializer
+from companies.serializers.contact import CompanyContactSerializer, FeeDispatchContactSerializer, VipSerializer
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -28,3 +29,8 @@ class FeeDispatchContactViewSet(viewsets.ModelViewSet):
 class VipViewSet(viewsets.ModelViewSet):
     queryset = Vip.objects.all()
     serializer_class = VipSerializer
+
+
+class PointOfSaleViewSet(viewsets.ModelViewSet):
+    queryset = PointOfSale.objects.all()
+    serializer_class = PointOfSaleSerializer

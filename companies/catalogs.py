@@ -11,6 +11,9 @@ class PointOfSale(models.Model):
         verbose_name_plural = "Catalogs - Pontos de Venda"
         ordering = ["name"]
 
+    def __str__(self):
+        return self.name
+
     def save(self, *args, **kwargs):  # new
         if not self.slug:
             self.slug = slugify(self.name)
