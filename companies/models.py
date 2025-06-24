@@ -30,6 +30,13 @@ class CompanyGroup(models.Model):
         help_text="Empresa principal do grupo"
     )
 
+    def clean(self):
+        super().clean()
+        if self.main_company and self.main_company.group_id != self.id:
+            raise ValidationError({
+                'main_company': "A empresa principal deve pertencer a este grupo."
+            })
+
     class Meta:
         verbose_name = "Grupo da Empresa"
         verbose_name_plural = "Grupos das Empresas"
@@ -41,6 +48,7 @@ class CompanyGroup(models.Model):
     def save(self, *args, **kwargs):  # new
         if not self.slug:
             self.slug = slugify(self.name)
+        self.full_clean()
         return super().save(*args, **kwargs)
 
 

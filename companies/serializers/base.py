@@ -9,9 +9,18 @@ from financial.serializers.base import (
 )
 
 
+class GroupNestedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CompanyGroup
+        fields = ["id", "name"]
+
+
 class CompanySerializer(serializers.ModelSerializer):
-    group = serializers.PrimaryKeyRelatedField(
-        queryset=CompanyGroup.objects.all(), write_only=True
+    group = GroupNestedSerializer(read_only=True)
+    group_id = serializers.PrimaryKeyRelatedField(
+        queryset=CompanyGroup.objects.all(),
+        write_only=True,
+        source="group"
     )
     group_name = serializers.CharField(source="group.name", read_only=True)
     point_of_sale = PointOfSaleSerializer(read_only=True)
@@ -74,13 +83,21 @@ class GroupSerializer(serializers.ModelSerializer):
     main_company_name = serializers.CharField(
         source="main_company.name", read_only=True
     )
-
-    def get_companies(self, obj):
-        return CompanySerializer(obj.companies.all(), many=True).data
-
     companies = serializers.SerializerMethodField()
 
     class Meta:
         model = CompanyGroup
         fields = ["id", "name", "main_company", "main_company_name", "companies"]
 
+    def get_companies(self, obj):
+        return CompanySerializer(obj.companies.all(), many=True).data
+
+    def validate(self, data):
+        main_company = data.get("main_company")
+        group = self.instance
+
+        if main_company and not main_company.group_id == group.id:
+            raise serializers.ValidationError({
+                "main_company": "A empresa principal deve pertencer a este grupo."
+            })
+        return data

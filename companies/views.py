@@ -27,8 +27,17 @@ class GroupViewSet(ModelViewSet):
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
-    queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    queryset = Company.objects.all()
+
+    def get_queryset(self):
+        queryset = Company.objects.all()
+
+        group_id = self.request.query_params.get("group")
+        if group_id is not None:
+            queryset = queryset.filter(group_id=group_id)
+
+        return queryset
 
 
 class CompanyContactViewSet(viewsets.ModelViewSet):
