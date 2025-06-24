@@ -3,7 +3,6 @@ from financial.catalogs import (
     Product,
     BillingCycle,
     BillingCalendar,
-    AdjustmentIndex,
     PaymentMethod,
 )
 
@@ -23,12 +22,6 @@ class BillingCycleSerializer(serializers.ModelSerializer):
 class BillingCalendarSerializer(serializers.ModelSerializer):
     class Meta:
         model = BillingCalendar
-        fields = "__all__"
-
-
-class AdjustmentIndexSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AdjustmentIndex
         fields = "__all__"
 
 

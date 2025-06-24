@@ -2,25 +2,6 @@ from django.db import models
 from django.utils.text import slugify
 
 
-class AdjustmentIndex(models.Model):
-    name = models.CharField(
-        max_length=100, verbose_name="Nome do Índice", unique=True, help_text='Tipo do produto: Aéreo, Hotel, etc'
-    )
-    slug = models.SlugField("Slug", unique=True)
-
-    class Meta:
-        verbose_name = "Catalogs - Índice de Reajuste"
-        verbose_name_plural = "Catalogs - Índices de Reajuste"
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):  # new
-        if not self.slug:
-            self.slug = slugify(self.name)
-        return super().save(*args, **kwargs)
-
-
 class Product(models.Model):
     product_type = models.CharField(
         max_length=100, verbose_name="Produto", unique=True, help_text='Tipo do produto: Aéreo, Hotel, etc'

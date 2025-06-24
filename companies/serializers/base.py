@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from companies.catalogs import PointOfSale
-from companies.models import CompanyGroup, Company, Vip
+from companies.models import CompanyGroup, Company, Vip, CompanyContact
 from companies.serializers.catalogs import PointOfSaleSerializer
 from companies.serializers.contact import VipSerializer, CompanyContactSerializer, FeeDispatchContactSerializer
+from financial.models import ContractData
 from financial.serializers.base import (
     ContractDataSerializer, BillingPolicySerializer, InvoiceConfigSerializer,
     FeeBillingSerializer, FeeDetailsSerializer
@@ -23,14 +24,29 @@ class CompanySerializer(serializers.ModelSerializer):
         source="group"
     )
     group_name = serializers.CharField(source="group.name", read_only=True)
+    account_executive_id = serializers.PrimaryKeyRelatedField(
+        queryset=CompanyContact.objects.all(),
+        source="account_executive",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+    current_contract_id = serializers.PrimaryKeyRelatedField(
+        queryset=ContractData.objects.all(),
+        source="current_contract",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
     point_of_sale = PointOfSaleSerializer(read_only=True)
     point_of_sale_id = serializers.PrimaryKeyRelatedField(
         queryset=PointOfSale.objects.all(), write_only=True, source="point_of_sale"
     )
 
     travel_managers = serializers.SerializerMethodField()
-    account_executives = serializers.SerializerMethodField()
     billing_contacts = serializers.SerializerMethodField()
+    financial_contact = serializers.SerializerMethodField()
+    commercial_contact = serializers.SerializerMethodField()
     fee_dispatch_contacts = serializers.SerializerMethodField()
     vip = serializers.SerializerMethodField()
 
@@ -48,12 +64,16 @@ class CompanySerializer(serializers.ModelSerializer):
         contacts = obj.companycontact.filter(is_travel_manager=True)
         return CompanyContactSerializer(contacts, many=True).data
 
-    def get_account_executives(self, obj):
-        contacts = obj.companycontact.filter(is_account_executive=True)
-        return CompanyContactSerializer(contacts, many=True).data
-
     def get_billing_contacts(self, obj):
         contacts = obj.companycontact.filter(is_billing_contact=True)
+        return CompanyContactSerializer(contacts, many=True).data
+
+    def get_financial_contact(self, obj):
+        contacts = obj.companycontact.filter(is_financial_contact=True)
+        return CompanyContactSerializer(contacts, many=True).data
+
+    def get_commercial_contact(self, obj):
+        contacts = obj.companycontact.filter(is_commercial_contact=True)
         return CompanyContactSerializer(contacts, many=True).data
 
     def get_fee_dispatch_contacts(self, obj):
@@ -77,6 +97,24 @@ class CompanySerializer(serializers.ModelSerializer):
 
     def get_fee_details(self, obj):
         return FeeDetailsSerializer(obj.feedetails.all(), many=True).data
+
+    def validate(self, attrs):
+        company = self.instance or None  # None no create
+        account_exec = attrs.get("account_executive")
+        current_contract = attrs.get("current_contract")
+
+        company_id = self.initial_data.get("id") or (company.id if company else None)
+
+        if account_exec and account_exec.company_id != company_id:
+            raise serializers.ValidationError({
+                "account_executive_id": "O executivo deve pertencer à empresa."
+            })
+
+        if current_contract and current_contract.company_id != company_id:
+            raise serializers.ValidationError({
+                "current_contract_id": "O contrato deve pertencer à empresa."
+            })
+        return attrs
 
 
 class GroupSerializer(serializers.ModelSerializer):

@@ -6,9 +6,12 @@ class ContractData(CompanyRelatedModel):
     signature_date = models.DateField(verbose_name="Data de Assinatura")
     expiration_date = models.DateField(verbose_name="Data de Expiração")
     adjustment_date = models.DateField(verbose_name="Data de Reajuste")
-    adjustment_index = models.ForeignKey(
-        "AdjustmentIndex", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Índices para Reajuste"
+    expiration_alert = models.PositiveSmallIntegerField(
+        verbose_name="Alerta de vencimento", help_text="Dias antes do vencimento do contrato que deverá alertar"
     )
+    alert_contract = models.DateField(verbose_name="Data de alerta de vencimento de contrato")
+    adjustment_index = models.TextField(verbose_name="Índices para Reajuste")
+    notes = models.TextField(blank=True, verbose_name="Observações")
 
     class Meta:
         verbose_name = "Dados Contratuais"

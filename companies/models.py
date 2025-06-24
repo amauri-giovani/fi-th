@@ -58,6 +58,24 @@ class Company(models.Model):
         help_text="Grupo ao qual esta empresa pertence"
     )
     go_live = models.DateField(verbose_name="Go Live")
+    current_contract = models.OneToOneField(
+        "financial.ContractData",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="current_for_company",
+        verbose_name="Contrato vigente",
+        help_text="Contrato vigente da empresa"
+    )
+    account_executive = models.OneToOneField(
+        "CompanyContact",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="executive_for_company",
+        verbose_name="Executivo de Contas",
+        help_text="Executivo de Contas da empresa"
+    )
     name = models.CharField('Razão Social', max_length=255, help_text='Nome jurídico oficial', unique=True)
     fantasy_name = models.CharField(
         'Nome Fantasia', max_length=255, help_text='Nome utilizado comercialmente', unique=True
@@ -93,6 +111,10 @@ class Company(models.Model):
             if len(cnpj_numeric) != 14 or not cnpj_numeric.isdigit():
                 raise ValidationError({'cnpj': 'CNPJ inválido.'})
             self.cnpj = cnpj_numeric
+        if self.account_executive and self.account_executive.company != self:
+            raise ValidationError({'account_executive': 'O executivo deve pertencer à empresa.'})
+        if self.current_contract and self.current_contract.company != self:
+            raise ValidationError({'current_contract': 'O contrato deve pertencer à empresa.'})
 
     @property
     def cnpj_formatted(self):
@@ -129,8 +151,9 @@ class CompanyContact(CompanyRelatedModel):
     whatsapp = models.CharField(max_length=30, verbose_name="WhatsApp", blank=True)
     email = models.EmailField(verbose_name="E-mail", unique=True)
     is_travel_manager = models.BooleanField(default=False, verbose_name="Gestor de Viagem")
-    is_account_executive = models.BooleanField(default=False, verbose_name="Executivo de Contas")
     is_billing_contact = models.BooleanField(default=False, verbose_name="Contato para Cobrança")
+    is_financial_contact = models.BooleanField(default=False, verbose_name="Contato Financeiro")
+    is_commercial_contact = models.BooleanField(default=False, verbose_name="Contato Comercial")
 
     class Meta:
         verbose_name = "Contato da Empresa"

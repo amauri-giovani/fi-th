@@ -13,8 +13,8 @@ class CompanyGroupAdmin(admin.ModelAdmin):
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ("name", "cnpj", "segment", "benner_code")
-    search_fields = ("name", "cnpj", "fantasy_name")
+    list_display = ("name", "cnpj", "segment", "benner_code", "account_executive__name")
+    search_fields = ("name", "cnpj", "fantasy_name", "account_executive__name")
     ordering = ("name",)
 
 
@@ -22,9 +22,9 @@ class CompanyAdmin(admin.ModelAdmin):
 class CompanyContactAdmin(admin.ModelAdmin):
     list_display = (
         "company", "name", "role", "email",
-        "is_travel_manager", "is_account_executive", "is_billing_contact"
+        "is_travel_manager", "is_billing_contact"
     )
-    list_filter = ("company", "is_travel_manager", "is_account_executive", "is_billing_contact")
+    list_filter = ("company", "is_travel_manager", "is_billing_contact")
     search_fields = ("name", "email", "role")
 
 

@@ -10,7 +10,6 @@ from .catalogs import (
     Product,
     BillingCycle,
     BillingCalendar,
-    AdjustmentIndex,
     PaymentMethod,
 )
 
@@ -23,8 +22,8 @@ class CompanyRelatedAdmin(admin.ModelAdmin):
 
 @admin.register(ContractData)
 class ContractDataAdmin(CompanyRelatedAdmin):
-    list_display = ("company", "signature_date", "expiration_date", "adjustment_index")
-    search_fields = ("company__name", "adjustment_index__name")
+    list_display = ("company", "signature_date", "expiration_date", "alert_contract")
+    search_fields = ("company__name",)
 
 
 @admin.register(BillingPolicy)
@@ -59,6 +58,7 @@ class FeeDetailsAdmin(CompanyRelatedAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ("product_type",)
+    readonly_fields = ("slug",)
 
 
 @admin.register(BillingCycle)
@@ -71,11 +71,7 @@ class BillingCalendarAdmin(admin.ModelAdmin):
     list_display = ("cycle_date",)
 
 
-@admin.register(AdjustmentIndex)
-class AdjustmentIndexAdmin(admin.ModelAdmin):
-    list_display = ("name",)
-
-
 @admin.register(PaymentMethod)
 class PaymentMethodAdmin(admin.ModelAdmin):
     list_display = ("payment_type",)
+    readonly_fields = ("slug",)
