@@ -31,6 +31,7 @@ class CompanySerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
+    current_contract = ContractDataSerializer(read_only=True)
     current_contract_id = serializers.PrimaryKeyRelatedField(
         queryset=ContractData.objects.all(),
         source="current_contract",
@@ -43,6 +44,7 @@ class CompanySerializer(serializers.ModelSerializer):
         queryset=PointOfSale.objects.all(), write_only=True, source="point_of_sale"
     )
 
+    account_executive = CompanyContactSerializer(read_only=True)
     travel_managers = serializers.SerializerMethodField()
     billing_contacts = serializers.SerializerMethodField()
     financial_contact = serializers.SerializerMethodField()

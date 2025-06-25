@@ -2,10 +2,19 @@ from django.db import models
 from companies.models import CompanyRelatedModel
 
 
+class ContractStatusChoices(models.TextChoices):
+    CURRENT = "Vigente"
+    EXPIRING = "Expirando"
+    DEFEATED = "Vencido"
+
+
 class ContractData(CompanyRelatedModel):
     signature_date = models.DateField(verbose_name="Data de Assinatura")
     expiration_date = models.DateField(verbose_name="Data de Expiração")
     adjustment_date = models.DateField(verbose_name="Data de Reajuste")
+    status = models.CharField(
+        max_length=20, choices=ContractStatusChoices.choices, verbose_name="Status do contrato"
+    )
     expiration_alert = models.PositiveSmallIntegerField(
         verbose_name="Alerta de vencimento", help_text="Dias antes do vencimento do contrato que deverá alertar"
     )
