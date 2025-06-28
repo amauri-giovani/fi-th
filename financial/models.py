@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from django.db import models
 from companies.models import CompanyRelatedModel
 
@@ -12,6 +13,7 @@ class ContractData(CompanyRelatedModel):
     signature_date = models.DateField(verbose_name="Data de Assinatura")
     expiration_date = models.DateField(verbose_name="Data de Expiração")
     adjustment_date = models.DateField(verbose_name="Data de Reajuste")
+    # contract_adjustment_period =
     status = models.CharField(
         max_length=20, choices=ContractStatusChoices.choices, verbose_name="Status do contrato"
     )
@@ -28,6 +30,22 @@ class ContractData(CompanyRelatedModel):
 
     def __str__(self):
         return f'{self.company} - Signature Date: {self.signature_date.strftime('%Y-%m-%d')}'
+
+    def update_contract_status(self):
+        if self.expiration_date and self.expiration_alert is not None:
+            self.alert_contract = self.expiration_date - timedelta(days=self.expiration_alert)
+            today = date.today()
+
+            if today < self.alert_contract:
+                self.status = ContractStatusChoices.CURRENT
+            elif self.alert_contract <= today < self.expiration_date:
+                self.status = ContractStatusChoices.EXPIRING
+            else:  # today >= expiration_date
+                self.status = ContractStatusChoices.DEFEATED
+
+    def save(self, *args, **kwargs):
+        self.update_contract_status()
+        super().save(*args, **kwargs)
 
 
 class BillingPolicy(CompanyRelatedModel):

@@ -6,6 +6,7 @@ class ContractDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContractData
         fields = "__all__"
+        read_only_fields = ("status", "alert_contract")
 
 
 class BillingPolicySerializer(serializers.ModelSerializer):

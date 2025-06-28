@@ -24,6 +24,7 @@ class CompanyRelatedAdmin(admin.ModelAdmin):
 class ContractDataAdmin(CompanyRelatedAdmin):
     list_display = ("company", "signature_date", "expiration_date", "alert_contract")
     search_fields = ("company__name",)
+    readonly_fields = ("status", "alert_contract")
 
 
 @admin.register(BillingPolicy)
